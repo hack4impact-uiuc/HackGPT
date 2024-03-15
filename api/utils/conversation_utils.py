@@ -11,9 +11,9 @@ async def create_conversation(user_email: str, name: str, model_provider: str, m
     result = await conversations_collection.insert_one(conversation.dict())
     return str(result.inserted_id)
 
-async def add_message(conversation_id: str, message: Message, user_email: str):
+async def add_message(conversation_id: str, message: Message):
     await conversations_collection.update_one(
-        {"_id": ObjectId(conversation_id), "user_email": user_email},
+        {"_id": ObjectId(conversation_id)},
         {"$push": {"messages": message.dict()}}
     )
 
@@ -35,3 +35,16 @@ async def rename_conversation(conversation_id: str, new_name: str, user_email: s
             return False
     except (ValueError, TypeError):
         raise HTTPException(status_code=400, detail="Invalid conversation ID")
+    
+async def get_conversation_by_id(conversation_id: str, user_email: str):
+    try:
+        conversation = await conversations_collection.find_one(
+            {"_id": ObjectId(conversation_id), "user_email": user_email}
+        )
+        return conversation
+    except (ValueError, TypeError):
+        raise HTTPException(status_code=400, detail="Invalid conversation ID")
+    
+async def get_conversations_by_user(user_email: str):
+    conversations = await conversations_collection.find({"user_email": user_email}).to_list(length=None)
+    return conversations

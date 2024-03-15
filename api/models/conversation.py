@@ -21,6 +21,7 @@ class PyObjectId(ObjectId):
 class Message(BaseModel):
     role: str
     content: str
+    hidden: bool = False
 
 class LanguageModel(BaseModel):
     provider: str
