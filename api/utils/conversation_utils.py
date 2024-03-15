@@ -1,19 +1,37 @@
 from datetime import datetime
 from db_utils import conversations_collection
-from models.message import Message
+from api.models.conversation import Message, Conversation, LanguageModel
 from bson import ObjectId
+from fastapi import HTTPException
 
-async def create_conversation(user_email: str):
-    conversation = {
-        "user_email": user_email,
-        "created_at": datetime.utcnow(),
-        "messages": []
-    }
-    result = await conversations_collection.insert_one(conversation)
+
+async def create_conversation(user_email: str, name: str, model_provider: str, model_name: str):
+    model = LanguageModel(provider=model_provider, name=model_name)
+    conversation = Conversation(user_email=user_email, name=name, model=model, created_at=datetime.now(datetime.UTC))
+    result = await conversations_collection.insert_one(conversation.dict())
     return str(result.inserted_id)
 
-async def add_message(conversation_id: str, message: Message):
+async def add_message(conversation_id: str, message: Message, user_email: str):
     await conversations_collection.update_one(
-        {"_id": ObjectId(conversation_id)},
+        {"_id": ObjectId(conversation_id), "user_email": user_email},
         {"$push": {"messages": message.dict()}}
     )
+
+async def rename_conversation(conversation_id: str, new_name: str, user_email: str):
+    try:
+        # Find the conversation by ID and user email
+        conversation = await conversations_collection.find_one(
+            {"_id": ObjectId(conversation_id), "user_email": user_email}
+        )
+
+        if conversation:
+            # Update the conversation name
+            await conversations_collection.update_one(
+                {"_id": ObjectId(conversation_id)},
+                {"$set": {"name": new_name}},
+            )
+            return True
+        else:
+            return False
+    except (ValueError, TypeError):
+        raise HTTPException(status_code=400, detail="Invalid conversation ID")
