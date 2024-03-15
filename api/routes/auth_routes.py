@@ -4,19 +4,13 @@ from fastapi import APIRouter, Request, HTTPException
 from authlib.integrations.starlette_client import OAuth
 from starlette.responses import RedirectResponse
 from starlette.config import Config
-from models.user import User
 from datetime import datetime, timedelta
 from jose import jwt
 
-from pymongo import MongoClient
+from utils.db_utils import users_collection
 
 # Load environment variables
 config = Config('.env')
-
-# Replace 'your_mongodb_uri' with your actual MongoDB URI
-client = MongoClient(config('MONGODB_URI'))
-db = client.your_database_name
-users_collection = db["users"]
 
 
 # OAuth2 configuration
