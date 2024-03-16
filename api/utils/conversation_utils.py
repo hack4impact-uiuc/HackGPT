@@ -1,5 +1,5 @@
 from datetime import datetime
-from db_utils import conversations_collection
+from api.utils.db_utils import conversations_collection
 from api.models.conversation import Message, Conversation, LanguageModel
 from bson import ObjectId
 from fastapi import HTTPException

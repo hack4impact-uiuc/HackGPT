@@ -1,8 +1,8 @@
 import asyncio
-from utils.conversation_utils import add_message
+from api.utils.conversation_utils import add_message
 from api.models.conversation import Message
-from utils.llm_providers.openai import openai_generate_response
-from utils.llm_providers.anthropic import anthropic_generate_response
+from api.utils.llm_providers.openai import openai_generate_response
+from api.utils.llm_providers.anthropic import anthropic_generate_response
 
 async def generate_response_stream(conversation):
     collected_chunks = []

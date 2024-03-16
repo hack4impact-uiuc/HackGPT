@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from api.models.conversation import Message
-from utils.conversation_utils import create_conversation, add_message, get_conversation_by_id, rename_conversation, get_conversations_by_user
-from utils.llm_utils import generate_response_stream
-from utils.auth_utils import get_current_user
-from models.user import User
+from api.utils.conversation_utils import create_conversation, add_message, get_conversation_by_id, rename_conversation, get_conversations_by_user
+from api.utils.llm_utils import generate_response_stream
+from api.utils.auth_utils import get_current_user
+from api.models.user import User
 
 router = APIRouter()
 

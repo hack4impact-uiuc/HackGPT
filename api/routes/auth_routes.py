@@ -7,7 +7,7 @@ from starlette.config import Config
 from datetime import datetime, timedelta
 from jose import jwt
 
-from utils.db_utils import users_collection
+from api.utils.db_utils import users_collection
 
 # Load environment variables
 config = Config('.env')

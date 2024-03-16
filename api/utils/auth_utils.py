@@ -1,8 +1,8 @@
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from db_utils import users_collection
-from models.user import User
+from api.utils.db_utils import users_collection
+from api.models.user import User
 from starlette.config import Config
 
 config = Config('.env')
