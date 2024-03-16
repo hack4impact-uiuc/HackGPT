@@ -3,11 +3,12 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from db_utils import users_collection
 from models.user import User
+from starlette.config import Config
 
-
+config = Config('.env')
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
-SECRET_KEY = "your-secret-key"
+SECRET_KEY = config('SECRET_KEY')
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     try:

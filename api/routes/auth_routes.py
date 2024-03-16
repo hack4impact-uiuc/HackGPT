@@ -35,9 +35,10 @@ async def login(request: Request):
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 # JWT configuration
-SECRET_KEY = "your-secret-key"
+SECRET_KEY = config('SECRET_KEY')
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+FRONTEND_URL = config('FRONTEND_URL')
 
 @router.get('/auth')
 async def auth(request: Request):
@@ -78,11 +79,11 @@ async def auth(request: Request):
         token = jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
 
         # Redirect the user back to the frontend with the JWT token
-        redirect_url = f'https://your-frontend-domain.com/dashboard?token={token}'
+        redirect_url = f'{FRONTEND_URL}/dashboard?token={token}'
         return RedirectResponse(url=redirect_url)
     else:
         # User not found in the members data, handle accordingly (e.g., redirect to an error page)
-        error_url = 'https://your-frontend-domain.com/error'
+        error_url = f'{FRONTEND_URL}/error'
         return RedirectResponse(url=error_url)
 
 @router.get('/logout')
