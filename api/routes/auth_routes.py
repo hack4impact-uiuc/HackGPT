@@ -1,6 +1,6 @@
 import os
 import httpx
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request
 from authlib.integrations.starlette_client import OAuth
 from starlette.responses import RedirectResponse
 from starlette.config import Config
@@ -87,7 +87,7 @@ async def auth(request: Request):
         return RedirectResponse(url=error_url)
 
 @router.get('/logout')
-async def logout(request: Request):
+async def logout():
     # Clear the user session
     response = RedirectResponse(url='/')
     response.delete_cookie('token')
