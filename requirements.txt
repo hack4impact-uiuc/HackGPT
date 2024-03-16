@@ -5,3 +5,5 @@ authlib
 python-jose
 pymongo
 openai
+python-multipart
+itsdangerous

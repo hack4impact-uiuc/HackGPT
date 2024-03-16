@@ -79,7 +79,7 @@ async def auth(request: Request):
         token = jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
 
         # Redirect the user back to the frontend with the JWT token
-        redirect_url = f'{FRONTEND_URL}/dashboard?token={token}'
+        redirect_url = f'{FRONTEND_URL}?token={token}'
         return RedirectResponse(url=redirect_url)
     else:
         # User not found in the members data, handle accordingly (e.g., redirect to an error page)
