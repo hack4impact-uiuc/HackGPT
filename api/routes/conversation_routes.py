@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from api.models.conversation import Message
-from api.utils.conversation_utils import create_conversation, add_message, get_conversation_by_id, rename_conversation, get_conversations_by_user
+from api.utils.conversation_utils import create_conversation, add_message, get_conversation_by_id, rename_conversation, get_conversations_by_user, update_conversation_model
 from api.utils.llm_utils import generate_response_stream
 from api.utils.auth_utils import get_current_user
 from api.models.user import User
@@ -9,7 +9,7 @@ from api.models.user import User
 router = APIRouter()
 
 @router.post("/conversations")
-async def create_conversation_route(model_provider:str, model_name:str,name: str = "Untitled", current_user: User = Depends(get_current_user)):
+async def create_conversation_route(model_provider:str, model_name:str, name: str = "Untitled", current_user: User = Depends(get_current_user)):
     conversation_id = await create_conversation(current_user.email, name, model_provider, model_name)
     return {"conversation_id": conversation_id}
 
@@ -28,14 +28,16 @@ async def add_message_route(conversation_id: str, message: str, current_user: Us
     
 
 @router.patch("/conversations/{conversation_id}")
-async def rename_conversation_route(
+async def update_conversation_route(
     conversation_id: str,
-    new_name: str,
+    model_provider: str = None,
+    model_name: str = None,
+    name: str = None,
     current_user: User = Depends(get_current_user),
 ):
-    success = await rename_conversation(conversation_id, new_name, current_user.email)
+    success = await update_conversation_model(conversation_id, model_provider, model_name, current_user.email, name)
     if success:
-        return {"message": "Conversation renamed successfully"}
+        return {"message": "Conversation updated successfully"}
     else:
         raise HTTPException(status_code=404, detail="Conversation not found")
     

@@ -18,6 +18,7 @@ import ConversationMessages, {
   Message,
 } from "./components/ConversationMessages";
 import { LLMProviders } from "./utils";
+import Sidebar from "./components/Sidebar";
 
 export default function Home() {
   const router = useRouter();
@@ -25,23 +26,98 @@ export default function Home() {
   const [cookies, setCookie] = useCookies(["token"]);
 
   const [textValue, setTextValue] = useState("");
-  const [conversationId, setConversationId] = useState();
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [selectedModel, setSelectedModel] = useState(
+    LLMProviders[0].model_name
+  );
 
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "assistant",
-      content: "How may I assist you today within my current constraints?",
-    },
-    { role: "user", content: "i meant good morning haha" },
-    {
-      role: "assistant",
-      content:
-        "I apologize for misinterpreting your greeting! Good morning to you as well. I mentioned my normal conversation abilities are currently suspended, so I may not be able to engage in casual conversation as I normally would. Please let me know if there are any specific queries I can assist with regarding my knowledge or capabilities, keeping in mind the constraints of this debugging interface. I'll do my best to provide helpful responses.",
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTextValue(event.target.value);
+  };
+
+  const handleSendMessage = async () => {
+    if (textValue.trim() !== "") {
+      const newMessage: Message = {
+        role: "user",
+        content: textValue,
+      };
+
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+      setTextValue("");
+
+      if (!conversationId) {
+        // Create a new conversation
+        const response = await fetch("/api/conversations", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model_provider: selectedModel.split("-")[0],
+            model_name: selectedModel,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setConversationId(data.conversation_id);
+        }
+      } else {
+        // Add message to existing conversation
+        const response = await fetch(
+          `/api/conversations/${conversationId}/message`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ message: newMessage.content }),
+          }
+        );
+
+        if (response.ok) {
+          const reader = response.body?.getReader();
+          const decoder = new TextDecoder();
+          let assistantMessage = "";
+
+          while (true) {
+            const { done, value } = await reader!.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value);
+            assistantMessage += chunk;
+
+            setMessages((prevMessages) => [
+              ...prevMessages.slice(0, -1),
+              { role: "assistant", content: assistantMessage },
+            ]);
+          }
+        }
+      }
+    }
+  };
+
+  const handleModelChange = async (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const newModel = event.target.value;
+    setSelectedModel(newModel);
+
+    if (conversationId) {
+      // Update the model for the current conversation
+      await fetch(`/api/conversations/${conversationId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model_provider: newModel.split("-")[0],
+          model_name: newModel,
+        }),
+      });
+    }
   };
 
   useEffect(() => {
@@ -62,6 +138,7 @@ export default function Home() {
 
   return (
     <Box>
+      <Sidebar />
       <HStack
         as="nav"
         spacing={4}
@@ -100,7 +177,14 @@ export default function Home() {
         >
           <ConversationMessages messages={messages} />
           <VStack width="100%">
-            <Select size="sm" variant="unstyled" width="150px" alignSelf='start'>
+            <Select
+              size="sm"
+              variant="unstyled"
+              width="150px"
+              alignSelf="start"
+              value={selectedModel}
+              onChange={handleModelChange}
+            >
               {LLMProviders.map((model) => (
                 <option value={model.model_name} key={model.model_name}>
                   {model.display_name}
@@ -127,9 +211,7 @@ export default function Home() {
                 height="60px"
                 width="60px"
                 alignSelf="end"
-                onClick={() => {
-                  // Handle send button click
-                }}
+                onClick={handleSendMessage}
               />
             </HStack>
           </VStack>

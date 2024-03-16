@@ -48,3 +48,22 @@ async def get_conversation_by_id(conversation_id: str, user_email: str):
 async def get_conversations_by_user(user_email: str):
     conversations = await conversations_collection.find({"user_email": user_email}).to_list(length=None)
     return conversations
+
+async def update_conversation_model(conversation_id: str, model_provider: str, model_name: str, user_email: str, new_name: str = None):
+    conversation = await get_conversation_by_id(conversation_id, user_email)
+    if conversation:
+        update_fields = {}
+        if model_provider:
+            update_fields["model_provider"] = model_provider
+        if model_name:
+            update_fields["model_name"] = model_name
+        if new_name:
+            update_fields["name"] = new_name
+
+        if update_fields:
+            result = await conversations_collection.update_one(
+                {"_id": ObjectId(conversation_id), "user_email": user_email},
+                {"$set": update_fields}
+            )
+            return result.modified_count > 0
+    return False
