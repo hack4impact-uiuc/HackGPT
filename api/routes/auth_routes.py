@@ -1,4 +1,3 @@
-import os
 import httpx
 from fastapi import APIRouter, Request, HTTPException
 from authlib.integrations.starlette_client import OAuth
@@ -38,7 +37,7 @@ async def login(request: Request):
 # JWT configuration
 SECRET_KEY = config('SECRET_KEY')
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 FRONTEND_URL = config('FRONTEND_URL')
 
 @router.get('/auth')
