@@ -11,7 +11,7 @@ app = FastAPI()
 
 app.add_middleware(
     SessionMiddleware,
-    secret_key=config('SECRET_KEY'),  # Replace with your own secret key
+    secret_key=config('SECRET_KEY'), 
 )
 
 # Include the authentication routes

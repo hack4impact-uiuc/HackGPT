@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from api.utils.db_utils import conversations_collection
 from api.models.conversation import Message, Conversation, LanguageModel
 from bson import ObjectId
@@ -7,7 +7,7 @@ from fastapi import HTTPException
 
 async def create_conversation(user_email: str, name: str, model_provider: str, model_name: str):
     model = LanguageModel(provider=model_provider, name=model_name)
-    conversation = Conversation(user_email=user_email, name=name, model=model, created_at=datetime.now(datetime.UTC))
+    conversation = Conversation(user_email=user_email, name=name, model=model, created_at=datetime.now(timezone.utc))
     result = await conversations_collection.insert_one(conversation.dict())
     return str(result.inserted_id)
 
