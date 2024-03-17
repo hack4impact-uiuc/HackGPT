@@ -25,6 +25,7 @@ import {
   fetchConversations,
   fetchConversationById,
 } from "./utils";
+import Link from "next/link";
 
 export default function Home() {
   const router = useRouter();
@@ -42,6 +43,8 @@ export default function Home() {
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
+
+  console.log("current set model:", selectedModel)
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTextValue(event.target.value);
@@ -73,7 +76,6 @@ export default function Home() {
 
   useEffect(() => {
     if (cookies.token && conversationId) {
-      console.log("triggered");
       fetchConversationById(
         conversationId,
         cookies.token,
@@ -118,15 +120,17 @@ export default function Home() {
             setSelectedModel(LLMProviders[0].model_name);
           }}
         />
-        <Image
-          src="h4i_square.png"
-          alt="Hack4Impact Logo"
-          borderRadius="none"
-          borderColor="black"
-          borderWidth="1px"
-          height="40px"
-          width="40px"
-        />
+        <Link href="https://uiuc.hack4impact.org/">
+          <Image
+            src="h4i_square.png"
+            alt="Hack4Impact Logo"
+            borderRadius="none"
+            borderColor="black"
+            borderWidth="1px"
+            height="40px"
+            width="40px"
+          />
+        </Link>
       </HStack>
       <Center minHeight="calc(100vh - 80px)" mt={16} mb={24}>
         <VStack

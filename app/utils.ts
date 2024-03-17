@@ -21,7 +21,7 @@ export const fetchConversationById = async (
 
     if (response.ok) {
       const conversation = await response.json();
-      setSelectedModel(conversation.model_name);
+      setSelectedModel(conversation.model.name);
       setMessages(conversation.messages);
     } else {
       console.error("Failed to fetch conversation");
