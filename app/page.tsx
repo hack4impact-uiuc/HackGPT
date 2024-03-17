@@ -70,7 +70,7 @@ export default function Home() {
         setConversations(data);
       });
     }
-  }, [cookies.token, conversationId]);
+  }, [cookies.token, conversationId, messages]);
 
   useEffect(() => {
     if (cookies.token && conversationId) {

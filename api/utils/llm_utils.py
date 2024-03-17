@@ -1,8 +1,8 @@
 import asyncio
-from api.utils.conversation_utils import add_message
+from api.utils.conversation_utils import add_message, get_conversation_by_id, update_conversation_model
 from api.models.conversation import Message
 from api.utils.llm_providers.openai import openai_generate_response
-from api.utils.llm_providers.anthropic import anthropic_generate_response
+from api.utils.llm_providers.anthropic import anthropic_generate_response, generate_conversation_name
 
 async def generate_response_stream(conversation):
     collected_chunks = []
@@ -34,4 +34,12 @@ async def generate_response_stream(conversation):
     assistant_response = "".join(collected_chunks)
     assistant_message = Message(role='assistant', content=assistant_response)
     await add_message(conversation_id=conversation.id, message=assistant_message)
+
+    if len(conversation.messages) <= 2:
+        conversation = await get_conversation_by_id(conversation.id, conversation.user_email)
+        # Generate a name for the conversation using Anthropic's Haiku model
+        conversation_name = await generate_conversation_name(conversation)
+        
+        # Update the conversation name in the database
+        await update_conversation_model(conversation_id=conversation.id, model_provider=None, model_name=None, user_email=conversation.user_email, new_name=conversation_name)
 
