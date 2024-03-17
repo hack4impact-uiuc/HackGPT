@@ -19,6 +19,7 @@ import ConversationMessages, {
 } from "./components/ConversationMessages";
 import { LLMProviders } from "./utils";
 import Sidebar from "./components/Sidebar";
+import { handleSendMessage, handleModelChange } from "./utils";
 
 export default function Home() {
   const router = useRouter();
@@ -35,89 +36,6 @@ export default function Home() {
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTextValue(event.target.value);
-  };
-
-  const handleSendMessage = async () => {
-    if (textValue.trim() !== "") {
-      const newMessage: Message = {
-        role: "user",
-        content: textValue,
-      };
-
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-      setTextValue("");
-
-      if (!conversationId) {
-        // Create a new conversation
-        const response = await fetch("/api/conversations", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model_provider: selectedModel.split("-")[0],
-            model_name: selectedModel,
-          }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setConversationId(data.conversation_id);
-        }
-      } else {
-        // Add message to existing conversation
-        const response = await fetch(
-          `/api/conversations/${conversationId}/message`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ message: newMessage.content }),
-          }
-        );
-
-        if (response.ok) {
-          const reader = response.body?.getReader();
-          const decoder = new TextDecoder();
-          let assistantMessage = "";
-
-          while (true) {
-            const { done, value } = await reader!.read();
-            if (done) break;
-
-            const chunk = decoder.decode(value);
-            assistantMessage += chunk;
-
-            setMessages((prevMessages) => [
-              ...prevMessages.slice(0, -1),
-              { role: "assistant", content: assistantMessage },
-            ]);
-          }
-        }
-      }
-    }
-  };
-
-  const handleModelChange = async (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const newModel = event.target.value;
-    setSelectedModel(newModel);
-
-    if (conversationId) {
-      // Update the model for the current conversation
-      await fetch(`/api/conversations/${conversationId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model_provider: newModel.split("-")[0],
-          model_name: newModel,
-        }),
-      });
-    }
   };
 
   useEffect(() => {
@@ -147,7 +65,7 @@ export default function Home() {
         padding={4}
       >
         <IconButton
-          icon={<AddIcon />}
+          icon={<AddIcon boxSize={3} />}
           aria-label="Add"
           borderRadius="none"
           borderColor="black"
@@ -170,8 +88,8 @@ export default function Home() {
       <Center height="calc(100vh - 80px)">
         <VStack
           width="60%"
-          minWidth="400px"
-          maxWidth="900px"
+          minWidth="500px"
+          maxWidth="700px"
           height="100%"
           justify="space-between"
         >
@@ -183,7 +101,14 @@ export default function Home() {
               width="150px"
               alignSelf="start"
               value={selectedModel}
-              onChange={handleModelChange}
+              onChange={(event) =>
+                handleModelChange(
+                  event,
+                  conversationId,
+                  setSelectedModel,
+                  cookies
+                )
+              }
             >
               {LLMProviders.map((model) => (
                 <option value={model.model_name} key={model.model_name}>
@@ -211,7 +136,17 @@ export default function Home() {
                 height="60px"
                 width="60px"
                 alignSelf="end"
-                onClick={handleSendMessage}
+                onClick={() =>
+                  handleSendMessage(
+                    textValue,
+                    conversationId,
+                    selectedModel,
+                    setMessages,
+                    setConversationId,
+                    cookies,
+                    setTextValue
+                  )
+                }
               />
             </HStack>
           </VStack>

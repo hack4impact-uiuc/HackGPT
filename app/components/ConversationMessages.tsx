@@ -16,7 +16,7 @@ const ConversationMessages: React.FC<ConversationMessagesProps> = ({
   userName = "User",
 }) => {
   return (
-    <VStack spacing={4} align="stretch">
+    <VStack spacing={4} align="stretch" width="100%">
       {messages.map((message, index) => (
         <Box
           key={index}
@@ -25,6 +25,7 @@ const ConversationMessages: React.FC<ConversationMessagesProps> = ({
           p={4}
           borderColor="black"
           alignSelf={message.role === "user" ? "flex-end" : "flex-start"}
+          maxWidth="100%"
         >
           <Text fontWeight="bold" mb={1}>
             [{index}] {message.role === "user" ? userName : "Assistant"}

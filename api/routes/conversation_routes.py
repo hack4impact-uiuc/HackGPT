@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 from api.models.conversation import Message
 from api.utils.conversation_utils import create_conversation, add_message, get_conversation_by_id, rename_conversation, get_conversations_by_user, update_conversation_model
 from api.utils.llm_utils import generate_response_stream
@@ -8,15 +9,28 @@ from api.models.user import User
 
 router = APIRouter()
 
+class ConversationCreate(BaseModel):
+    model_provider: str
+    model_name: str
+    name: str = "Untitled"
+
+class ConversationUpdate(BaseModel):
+    model_provider: str = None
+    model_name: str = None
+    name: str = None
+
+class MessageCreate(BaseModel):
+    message: str
+
 @router.post("/conversations")
-async def create_conversation_route(model_provider:str, model_name:str, name: str = "Untitled", current_user: User = Depends(get_current_user)):
-    conversation_id = await create_conversation(current_user.email, name, model_provider, model_name)
+async def create_conversation_route(conversation_create: ConversationCreate, current_user: User = Depends(get_current_user)):
+    conversation_id = await create_conversation(current_user.email, conversation_create.name, conversation_create.model_provider, conversation_create.model_name)
     return {"conversation_id": conversation_id}
 
 
 @router.post("/conversations/{conversation_id}/message")
-async def add_message_route(conversation_id: str, message: str, current_user: User = Depends(get_current_user)):
-    user_message = Message(role='user', content=message)
+async def add_message_route(conversation_id: str, message_create: MessageCreate, current_user: User = Depends(get_current_user)):
+    user_message = Message(role='user', content=message_create.message)
     await add_message(conversation_id, user_message)
     
     conversation = await get_conversation_by_id(conversation_id, current_user.email)
@@ -30,12 +44,16 @@ async def add_message_route(conversation_id: str, message: str, current_user: Us
 @router.patch("/conversations/{conversation_id}")
 async def update_conversation_route(
     conversation_id: str,
-    model_provider: str = None,
-    model_name: str = None,
-    name: str = None,
+    conversation_update: ConversationUpdate,
     current_user: User = Depends(get_current_user),
 ):
-    success = await update_conversation_model(conversation_id, model_provider, model_name, current_user.email, name)
+    success = await update_conversation_model(
+        conversation_id, 
+        conversation_update.model_provider, 
+        conversation_update.model_name, 
+        current_user.email, 
+        conversation_update.name
+    )
     if success:
         return {"message": "Conversation updated successfully"}
     else:

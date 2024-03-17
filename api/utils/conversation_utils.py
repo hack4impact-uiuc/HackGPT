@@ -37,13 +37,14 @@ async def rename_conversation(conversation_id: str, new_name: str, user_email: s
         raise HTTPException(status_code=400, detail="Invalid conversation ID")
     
 async def get_conversation_by_id(conversation_id: str, user_email: str):
-    try:
-        conversation = await conversations_collection.find_one(
-            {"_id": ObjectId(conversation_id), "user_email": user_email}
-        )
-        return conversation
-    except (ValueError, TypeError):
-        raise HTTPException(status_code=400, detail="Invalid conversation ID")
+    conversation_dict = await conversations_collection.find_one(
+        {"_id": ObjectId(conversation_id), "user_email": user_email}
+    )
+    if conversation_dict:
+        conversation_dict["_id"] = str(conversation_dict["_id"])
+        return Conversation(**conversation_dict)
+    else:
+        return None
     
 async def get_conversations_by_user(user_email: str):
     conversations = await conversations_collection.find({"user_email": user_email}).to_list(length=None)

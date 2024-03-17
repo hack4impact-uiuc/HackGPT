@@ -7,3 +7,5 @@ pymongo
 openai
 python-multipart
 itsdangerous
+fastapi-cors
+motor
