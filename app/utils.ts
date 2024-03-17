@@ -104,9 +104,10 @@ export const handleSendMessage = async (
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
   setConversationId: React.Dispatch<React.SetStateAction<string | null>>,
   cookies: { [key: string]: string },
-  setTextValue: React.Dispatch<React.SetStateAction<string>>
+  setTextValue: React.Dispatch<React.SetStateAction<string>>,
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
-  console.log(selectedModel);
+  setLoading(true)
   if (textValue.trim() !== "") {
     const newMessage: Message = {
       role: "user",
@@ -176,6 +177,7 @@ export const handleSendMessage = async (
       }
     }
   }
+  setLoading(false)
 };
 
 export const handleModelChange = async (

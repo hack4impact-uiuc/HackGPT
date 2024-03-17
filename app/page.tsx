@@ -41,6 +41,7 @@ export default function Home() {
   >([]);
 
   const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTextValue(event.target.value);
@@ -188,7 +189,8 @@ export default function Home() {
                   setMessages,
                   setConversationId,
                   cookies,
-                  setTextValue
+                  setTextValue,
+                  setLoading
                 )
               }
             />
@@ -211,9 +213,11 @@ export default function Home() {
                   setMessages,
                   setConversationId,
                   cookies,
-                  setTextValue
+                  setTextValue,
+                  setLoading
                 )
               }
+              isLoading={loading}
             />
           </HStack>
         </VStack>
