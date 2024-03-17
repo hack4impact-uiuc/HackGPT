@@ -35,7 +35,7 @@ export default function Home() {
   const [textValue, setTextValue] = useState("");
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState(
-    LLMProviders[0].model_name
+    "claude-3-sonnet-20240229"
   );
   const [conversations, setConversations] = useState<
     { id: string; name: string; created_at: string }[]
@@ -70,7 +70,7 @@ export default function Home() {
         setConversations(data);
       });
     }
-  }, [cookies.token, conversationId, messages]);
+  }, [cookies.token, conversationId]);
 
   useEffect(() => {
     if (cookies.token && conversationId) {
@@ -115,7 +115,7 @@ export default function Home() {
           onClick={() => {
             setConversationId(null);
             setMessages([]);
-            setSelectedModel(LLMProviders[0].model_name);
+            setSelectedModel("claude-3-sonnet-20240229");
           }}
         />
         <Link href="https://uiuc.hack4impact.org/">

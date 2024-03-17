@@ -1,10 +1,5 @@
 export const LLMProviders = [
   {
-    model_name: "grok lmao",
-    model_provider: "elon",
-    display_name: "grok",
-  },
-  {
     model_name: "gpt-4-0125-preview",
     model_provider: "openai",
     display_name: "gpt-4 turbo",
