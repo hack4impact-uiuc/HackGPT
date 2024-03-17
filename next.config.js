@@ -28,6 +28,11 @@ const nextConfig = {
   env: {
     BACKEND_URL: process.env.BACKEND_URL,
   },
+  experimental: {
+    outputFileTracingExcludes: {
+      "*": ["**swc/core**"],
+    },
+  },
 };
 
 module.exports = nextConfig;
