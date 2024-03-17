@@ -1,5 +1,28 @@
 import { Message } from "./components/ConversationMessages";
 
+export const fetchConversations = async (token: string) => {
+  try {
+    const response = await fetch(`${process.env.BACKEND_URL}/conversations`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      mode: "cors",
+      credentials: "include",
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      console.error("Failed to fetch conversations");
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching conversations:", error);
+    return [];
+  }
+};
+
 export const handleSendMessage = async (
   textValue: string,
   conversationId: string | null,

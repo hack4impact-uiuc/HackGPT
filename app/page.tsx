@@ -19,7 +19,7 @@ import ConversationMessages, {
 } from "./components/ConversationMessages";
 import { LLMProviders } from "./utils";
 import Sidebar from "./components/Sidebar";
-import { handleSendMessage, handleModelChange } from "./utils";
+import { handleSendMessage, handleModelChange, fetchConversations } from "./utils";
 
 export default function Home() {
   const router = useRouter();
@@ -31,6 +31,9 @@ export default function Home() {
   const [selectedModel, setSelectedModel] = useState(
     LLMProviders[0].model_name
   );
+  const [conversations, setConversations] = useState<
+    { id: string; name: string }[]
+  >([]);
 
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -54,9 +57,20 @@ export default function Home() {
     }
   }, [cookies.token, router, searchParams, setCookie]);
 
+  useEffect(() => {
+    if (cookies.token) {
+      fetchConversations(cookies.token).then((data) => {
+        setConversations(data);
+      });
+    }
+  }, [cookies.token, conversationId])
+
   return (
     <Box>
-      <Sidebar />
+      <Sidebar
+        conversations={conversations}
+        setConversationId={setConversationId}
+      />
       <HStack
         as="nav"
         spacing={4}
