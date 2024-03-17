@@ -31,8 +31,10 @@ const nextConfig = {
   experimental: {
     outputFileTracingExcludes: {
       "*": [
-        "node_modules/@swc/core-linux-x64-gnu",
-        "node_modules/@swc/core-linux-x64-musl",
+        'node_modules/@swc/core-linux-x64-gnu',
+        'node_modules/@swc/core-linux-x64-musl',
+        "node_modules/@next/swc-linux-x64-gnu/next-swc.linux-x64-gnu.node",
+        " node_modules/@next/swc-linux-x64-musl/next-swc.linux-x64-musl.node",
         "node_modules/@esbuild/linux-x64",
       ],
     },

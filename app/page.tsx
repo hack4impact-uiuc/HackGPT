@@ -120,7 +120,7 @@ export default function Home() {
         />
         <Link href="https://uiuc.hack4impact.org/">
           <Image
-            src="h4i_square.png"
+            src="images/h4i_square.png"
             alt="Hack4Impact Logo"
             borderRadius="none"
             borderColor="black"
