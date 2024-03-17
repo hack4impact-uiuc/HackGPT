@@ -17,9 +17,14 @@ import AutoResizeTextarea from "./components/AutoResizeTextArea";
 import ConversationMessages, {
   Message,
 } from "./components/ConversationMessages";
-import { LLMProviders } from "./utils";
+import { LLMProviders } from "./llm_providers";
 import Sidebar from "./components/Sidebar";
-import { handleSendMessage, handleModelChange, fetchConversations } from "./utils";
+import {
+  handleSendMessage,
+  handleModelChange,
+  fetchConversations,
+  fetchConversationById,
+} from "./utils";
 
 export default function Home() {
   const router = useRouter();
@@ -32,7 +37,7 @@ export default function Home() {
     LLMProviders[0].model_name
   );
   const [conversations, setConversations] = useState<
-    { id: string; name: string }[]
+    { id: string; name: string; created_at: string }[]
   >([]);
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -63,7 +68,18 @@ export default function Home() {
         setConversations(data);
       });
     }
-  }, [cookies.token, conversationId])
+  }, [cookies.token, conversationId]);
+
+  useEffect(() => {
+    if (cookies.token && conversationId) {
+      fetchConversationById(
+        conversationId,
+        cookies.token,
+        setSelectedModel,
+        setMessages
+      );
+    }
+  }, [cookies.token, conversationId]);
 
   return (
     <Box>
@@ -77,6 +93,12 @@ export default function Home() {
         alignItems="center"
         justifyContent="space-between"
         padding={4}
+        position="fixed"
+        top={0}
+        left={0}
+        right={0}
+        zIndex={1}
+        bg="white"
       >
         <IconButton
           icon={<AddIcon boxSize={3} />}
@@ -88,6 +110,10 @@ export default function Home() {
           width="40px"
           variant="outline"
           colorScheme="blue"
+          onClick={() => {
+            setConversationId(null);
+            setMessages([]);
+          }}
         />
         <Image
           src="h4i_square.png"
@@ -99,7 +125,7 @@ export default function Home() {
           width="40px"
         />
       </HStack>
-      <Center height="calc(100vh - 80px)">
+      <Center height="calc(100vh - 80px)" mt={16} mb={24}>
         <VStack
           width="60%"
           minWidth="500px"
@@ -107,65 +133,89 @@ export default function Home() {
           height="100%"
           justify="space-between"
         >
-          <ConversationMessages messages={messages} />
-          <VStack width="100%">
-            <Select
-              size="sm"
-              variant="unstyled"
-              width="150px"
-              alignSelf="start"
-              value={selectedModel}
-              onChange={(event) =>
-                handleModelChange(
-                  event,
-                  conversationId,
-                  setSelectedModel,
-                  cookies
-                )
-              }
-            >
-              {LLMProviders.map((model) => (
-                <option value={model.model_name} key={model.model_name}>
-                  {model.display_name}
-                </option>
-              ))}
-            </Select>
-            <HStack width="100%">
-              <AutoResizeTextarea
-                value={textValue}
-                onChange={handleChange}
-                alignSelf="end"
-                borderRadius="none"
-                borderColor="black"
-                minHeight="40px"
-              />
-              <IconButton
-                icon={<ArrowUpIcon />}
-                variant="outline"
-                colorScheme="blue"
-                aria-label="Send"
-                borderRadius="none"
-                borderColor="black"
-                borderWidth="1px"
-                height="60px"
-                width="60px"
-                alignSelf="end"
-                onClick={() =>
-                  handleSendMessage(
-                    textValue,
-                    conversationId,
-                    selectedModel,
-                    setMessages,
-                    setConversationId,
-                    cookies,
-                    setTextValue
-                  )
-                }
-              />
-            </HStack>
-          </VStack>
+          <Box overflowY="auto" width="100%" height="100%" pt={2}>
+            <ConversationMessages messages={messages} />
+          </Box>
         </VStack>
       </Center>
+      <VStack
+        width="100%"
+        position="fixed"
+        bottom={0}
+        left={0}
+        right={0}
+        zIndex={1}
+        bg="white"
+        py={4}
+      >
+        <VStack width="60%" minWidth="500px" maxWidth="700px">
+          <Select
+            size="sm"
+            variant="unstyled"
+            width="150px"
+            alignSelf="start"
+            value={selectedModel}
+            onChange={(event) =>
+              handleModelChange(
+                event,
+                conversationId,
+                setSelectedModel,
+                cookies
+              )
+            }
+          >
+            {LLMProviders.map((model) => (
+              <option value={model.model_name} key={model.model_name}>
+                {model.display_name}
+              </option>
+            ))}
+          </Select>
+          <HStack width="100%">
+            <AutoResizeTextarea
+              value={textValue}
+              onChange={handleChange}
+              alignSelf="end"
+              borderRadius="none"
+              borderColor="black"
+              minHeight="40px"
+              onSendMessage={() =>
+                handleSendMessage(
+                  textValue,
+                  conversationId,
+                  selectedModel,
+                  setMessages,
+                  setConversationId,
+                  cookies,
+                  setTextValue
+                )
+              }
+            />
+            <IconButton
+              icon={<ArrowUpIcon />}
+              variant="outline"
+              colorScheme="blue"
+              aria-label="Send"
+              borderRadius="none"
+              borderColor="black"
+              borderWidth="1px"
+              height="60px"
+              width="60px"
+              alignSelf="end"
+              onClick={() =>
+                handleSendMessage(
+                  textValue,
+                  conversationId,
+                  selectedModel,
+                  setMessages,
+                  setConversationId,
+                  cookies,
+                  setTextValue
+                )
+              }
+            />
+          </HStack>
+        </VStack>
+      </VStack>
     </Box>
   );
 }

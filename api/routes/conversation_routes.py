@@ -63,8 +63,14 @@ async def update_conversation_route(
 @router.get("/conversations")
 async def get_conversations_route(current_user: User = Depends(get_current_user)):
     conversations = await get_conversations_by_user(current_user.email)
-    return [{"id": str(conv["_id"]), "name": conv["name"]} for conv in conversations]
-
+    return [
+        {
+            "id": str(conv["_id"]),
+            "name": conv["name"],
+            "created_at": conv["created_at"].isoformat(),
+        }
+        for conv in conversations
+    ]
 @router.get("/conversations/{conversation_id}")
 async def get_conversation_route(conversation_id: str, current_user: User = Depends(get_current_user)):
     conversation = await get_conversation_by_id(conversation_id, current_user.email)

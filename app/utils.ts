@@ -1,4 +1,42 @@
 import { Message } from "./components/ConversationMessages";
+import { LLMProviders } from "./llm_providers";
+
+export const fetchConversationById = async (
+  conversationId: string,
+  token: string,
+  setSelectedModel: React.Dispatch<React.SetStateAction<string>>,
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>
+) => {
+  try {
+    const response = await fetch(
+      `${process.env.BACKEND_URL}/conversations/${conversationId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        mode: "cors",
+        credentials: "include",
+      }
+    );
+
+    if (response.ok) {
+      const conversation = await response.json();
+      setSelectedModel(conversation.model_name);
+      setMessages(conversation.messages);
+    } else {
+      console.error("Failed to fetch conversation");
+    }
+  } catch (error) {
+    console.error("Error fetching conversation:", error);
+  }
+};
+
+export interface ConversationInfo {
+  id: string;
+  name: string;
+  created_at: string;
+}
+
 
 export const fetchConversations = async (token: string) => {
   try {
@@ -11,8 +49,10 @@ export const fetchConversations = async (token: string) => {
     });
 
     if (response.ok) {
-      const data = await response.json();
-      return data;
+      const data: ConversationInfo[] = await response.json();
+      return data.sort(
+        (a, b) => (new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      );
     } else {
       console.error("Failed to fetch conversations");
       return [];
@@ -170,40 +210,4 @@ export const handleModelChange = async (
   }
 };
 
-export const LLMProviders = [
-  {
-    model_name: "grok lmao",
-    model_provider: "elon",
-    display_name: "grok",
-  },
-  {
-    model_name: "gpt-4-turbo",
-    model_provider: "openai",
-    display_name: "gpt 4 turbo",
-  },
-  {
-    model_name: "gpt-4",
-    model_provider: "openai",
-    display_name: "gpt 4",
-  },
-  {
-    model_name: "gpt-3.5-turbo",
-    model_provider: "openai",
-    display_name: "gpt 3.5",
-  },
-  {
-    model_name: "claude-3-opus-20240229",
-    model_provider: "anthropic",
-    display_name: "claude 3 opus",
-  },
-  {
-    model_name: "claude-3-sonnet-20240229",
-    model_provider: "anthropic",
-    display_name: "claude 3 sonnet",
-  },
-  {
-    model_name: "claude-3-haiku-20240307",
-    model_provider: "anthropic",
-    display_name: "claude 3 haiku",
-  },
-];
+
