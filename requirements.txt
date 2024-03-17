@@ -6,3 +6,4 @@ openai
 anthropic
 fastapi-cors
 motor
+itsdangerous
