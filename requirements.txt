@@ -2,8 +2,11 @@ fastapi==0.100.1
 uvicorn[standard]==0.23.2
 httpx
 authlib
+python-jose
+pymongo
 openai
 anthropic
+python-multipart
+itsdangerous
 fastapi-cors
 motor
-itsdangerous
