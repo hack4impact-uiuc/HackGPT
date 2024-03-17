@@ -3,6 +3,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from api.models.conversation import Message
 from api.utils.conversation_utils import create_conversation, add_message, get_conversation_by_id, rename_conversation, get_conversations_by_user, update_conversation_model
+from api.utils.llm_providers.openai import openai_generate_response
 from api.utils.llm_utils import generate_response_stream
 from api.utils.auth_utils import get_current_user
 from api.models.user import User

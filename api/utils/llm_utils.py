@@ -13,8 +13,9 @@ async def generate_response_stream(conversation):
                 yield chunk
     elif conversation.model.provider == "anthropic":
         async for chunk in anthropic_generate_response(conversation):
-            collected_chunks.append(chunk)
-            yield chunk
+            if chunk:
+                collected_chunks.append(chunk)
+                yield chunk
     else:
         # Fallback to mock response for other providers
         async def mock_response_generator():
@@ -33,3 +34,4 @@ async def generate_response_stream(conversation):
     assistant_response = "".join(collected_chunks)
     assistant_message = Message(role='assistant', content=assistant_response)
     await add_message(conversation_id=conversation.id, message=assistant_message)
+

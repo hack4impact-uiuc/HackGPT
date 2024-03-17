@@ -84,6 +84,8 @@ const handleStreamingResponse = async (
       const chunk = decoder.decode(value);
       assistantMessage += chunk;
 
+      console.log(chunk)
+
       setMessages((prevMessages) => [
         ...prevMessages.slice(0, -1),
         { role: "assistant", content: assistantMessage },

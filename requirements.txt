@@ -5,6 +5,7 @@ authlib
 python-jose
 pymongo
 openai
+anthropic
 python-multipart
 itsdangerous
 fastapi-cors

@@ -127,7 +127,7 @@ export default function Home() {
           width="40px"
         />
       </HStack>
-      <Center height="calc(100vh - 80px)" mt={16} mb={24}>
+      <Center minHeight="calc(100vh - 80px)" mt={16} mb={24}>
         <VStack
           width="60%"
           minWidth="500px"
@@ -135,7 +135,7 @@ export default function Home() {
           height="100%"
           justify="space-between"
         >
-          <Box overflowY="auto" width="100%" height="100%" pt={2} pb={2}>
+          <Box width="100%" pt={2} pb={2}>
             <ConversationMessages messages={messages} />
           </Box>
         </VStack>
@@ -154,7 +154,7 @@ export default function Home() {
           <Select
             size="sm"
             variant="unstyled"
-            width="150px"
+            width="140px"
             alignSelf="start"
             value={selectedModel}
             onChange={(event) =>
