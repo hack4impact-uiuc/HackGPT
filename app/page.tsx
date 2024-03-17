@@ -44,8 +44,6 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
 
-  console.log("current set model:", selectedModel)
-
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTextValue(event.target.value);
   };

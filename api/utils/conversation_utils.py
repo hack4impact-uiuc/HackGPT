@@ -54,10 +54,8 @@ async def update_conversation_model(conversation_id: str, model_provider: str, m
     conversation = await get_conversation_by_id(conversation_id, user_email)
     if conversation:
         update_fields = {}
-        if model_provider:
-            update_fields["model_provider"] = model_provider
-        if model_name:
-            update_fields["model_name"] = model_name
+        if model_provider and model_name:
+            update_fields["model"] = {"provider": model_provider, "name": model_name}
         if new_name:
             update_fields["name"] = new_name
 

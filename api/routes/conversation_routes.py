@@ -48,6 +48,8 @@ async def update_conversation_route(
     conversation_update: ConversationUpdate,
     current_user: User = Depends(get_current_user),
 ):
+    print(conversation_update.model_provider)
+    print(conversation_update.model_name)
     success = await update_conversation_model(
         conversation_id, 
         conversation_update.model_provider, 
