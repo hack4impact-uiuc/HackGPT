@@ -37,7 +37,6 @@ export interface ConversationInfo {
   created_at: string;
 }
 
-
 export const fetchConversations = async (token: string) => {
   try {
     const response = await fetch(`${process.env.BACKEND_URL}/conversations`, {
@@ -51,7 +50,8 @@ export const fetchConversations = async (token: string) => {
     if (response.ok) {
       const data: ConversationInfo[] = await response.json();
       return data.sort(
-        (a, b) => (new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
     } else {
       console.error("Failed to fetch conversations");
@@ -63,6 +63,38 @@ export const fetchConversations = async (token: string) => {
   }
 };
 
+const handleStreamingResponse = async (
+  response: Response,
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>
+) => {
+  const reader = response.body?.getReader();
+  const decoder = new TextDecoder();
+  let assistantMessage = "";
+
+  setMessages((prevMessages) => [
+    ...prevMessages,
+    { role: "assistant", content: "" },
+  ]);
+
+  try {
+    while (true) {
+      const { done, value } = await reader!.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value);
+      assistantMessage += chunk;
+
+      setMessages((prevMessages) => [
+        ...prevMessages.slice(0, -1),
+        { role: "assistant", content: assistantMessage },
+      ]);
+    }
+  } catch (error) {
+    console.error("Error during streaming:", error);
+  }
+};
+
+
 export const handleSendMessage = async (
   textValue: string,
   conversationId: string | null,
@@ -72,12 +104,12 @@ export const handleSendMessage = async (
   cookies: { [key: string]: string },
   setTextValue: React.Dispatch<React.SetStateAction<string>>
 ) => {
+  console.log(selectedModel);
   if (textValue.trim() !== "") {
     const newMessage: Message = {
       role: "user",
       content: textValue,
     };
-
     setMessages((prevMessages) => [...prevMessages, newMessage]);
     setTextValue("");
 
@@ -118,24 +150,7 @@ export const handleSendMessage = async (
         );
 
         if (messageResponse.ok) {
-          const reader = messageResponse.body?.getReader();
-          const decoder = new TextDecoder();
-          let assistantMessage = "";
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            { role: "assistant", content: "" },
-          ]);
-          while (true) {
-            const { done, value } = await reader!.read();
-            if (done) break;
-
-            const chunk = decoder.decode(value);
-            assistantMessage += chunk;
-            setMessages((prevMessages) => [
-              ...prevMessages.slice(0, -1),
-              { role: "assistant", content: assistantMessage },
-            ]);
-          }
+          await handleStreamingResponse(messageResponse, setMessages);
         }
       }
     } else {
@@ -155,27 +170,7 @@ export const handleSendMessage = async (
       );
 
       if (response.ok) {
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder();
-        let assistantMessage = "";
-
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { role: "assistant", content: "" },
-        ]);
-
-        while (true) {
-          const { done, value } = await reader!.read();
-          if (done) break;
-
-          const chunk = decoder.decode(value);
-          assistantMessage += chunk;
-
-          setMessages((prevMessages) => [
-            ...prevMessages.slice(0, -1),
-            { role: "assistant", content: assistantMessage },
-          ]);
-        }
+        await handleStreamingResponse(response, setMessages);
       }
     }
   }
@@ -209,5 +204,3 @@ export const handleModelChange = async (
     });
   }
 };
-
-

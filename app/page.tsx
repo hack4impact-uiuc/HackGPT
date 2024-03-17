@@ -72,6 +72,7 @@ export default function Home() {
 
   useEffect(() => {
     if (cookies.token && conversationId) {
+      console.log("triggered");
       fetchConversationById(
         conversationId,
         cookies.token,
@@ -113,6 +114,7 @@ export default function Home() {
           onClick={() => {
             setConversationId(null);
             setMessages([]);
+            setSelectedModel(LLMProviders[0].model_name);
           }}
         />
         <Image
@@ -133,7 +135,7 @@ export default function Home() {
           height="100%"
           justify="space-between"
         >
-          <Box overflowY="auto" width="100%" height="100%" pt={2}>
+          <Box overflowY="auto" width="100%" height="100%" pt={2} pb={2}>
             <ConversationMessages messages={messages} />
           </Box>
         </VStack>

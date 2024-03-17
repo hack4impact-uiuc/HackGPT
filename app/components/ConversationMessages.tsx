@@ -16,7 +16,7 @@ const ConversationMessages: React.FC<ConversationMessagesProps> = ({
   userName = "User",
 }) => {
   return (
-    <VStack spacing={4} align="stretch" width="100%">
+    <VStack spacing={4} align="stretch" width="100%" mb={10}>
       {messages.map((message, index) => (
         <Box
           key={index}
