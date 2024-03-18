@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from api.utils.db_utils import users_collection
+from api.utils.db_utils import get_db
 from api.models.user import User
 from starlette.config import Config
 
@@ -16,9 +16,16 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         email = payload.get("sub")
         if email is None:
             raise HTTPException(status_code=401, detail="Invalid authentication token")
-        user =await users_collection.find_one({"email": email})
-        if user is None:
+
+        db = await get_db()
+        users_collection = db["users"]
+        user_dict = await users_collection.find_one({"email": email})
+
+        if user_dict is None:
             raise HTTPException(status_code=401, detail="User not found")
-        return User(**user)
+
+        user = User(**user_dict)
+        return user
+
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid authentication token")

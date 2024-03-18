@@ -1,11 +1,19 @@
-import motor.motor_asyncio
+from motor.motor_asyncio import AsyncIOMotorClient
 from starlette.config import Config
 
-# Load environment variables
 config = Config('.env')
 
-# Replace 'your_mongodb_uri' with your actual MongoDB URI
-client = motor.motor_asyncio.AsyncIOMotorClient(config('MONGODB_URI'))
-db = client.your_database_name
-users_collection = db["users"]
-conversations_collection = db["conversations"]
+db_client = None
+
+async def get_db():
+    return db_client[config('DATABASE_NAME')]
+
+async def connect_and_init_db():
+    global db_client
+    db_client = AsyncIOMotorClient(config('MONGODB_URI'))
+
+async def close_db_connection():
+    global db_client
+    if db_client:
+        db_client.close()
+        db_client = None
