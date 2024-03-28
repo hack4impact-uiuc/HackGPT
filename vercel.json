@@ -1,0 +1,15 @@
+{
+  "builds": [
+    {
+      "src": "**",
+      "use": "@vercel/next",
+      "config": {
+        "includeFiles": ["**"],
+        "excludeFiles": [
+          "api/**",
+          "requirements.txt"
+        ]
+      }
+    }
+  ]
+}
