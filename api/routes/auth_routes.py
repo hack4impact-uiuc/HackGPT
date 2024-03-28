@@ -1,16 +1,16 @@
 import httpx
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, Depends
 from authlib.integrations.starlette_client import OAuth
 from starlette.responses import RedirectResponse
 from starlette.config import Config
 from datetime import datetime, timedelta, timezone
 from jose import jwt
 
-from api.utils.db_utils import users_collection
+from api.utils.db_utils import get_db
+from api.models.user import User
 
 # Load environment variables
 config = Config('.env')
-
 
 # OAuth2 configuration
 oauth = OAuth(config)
@@ -41,7 +41,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 FRONTEND_URL = config('FRONTEND_URL')
 
 @router.get('/auth')
-async def auth(request: Request):
+async def auth(request: Request, db = Depends(get_db)):
     token = await oauth.google.authorize_access_token(request)
     
     # Retrieve the access token from the token response
@@ -78,7 +78,8 @@ async def auth(request: Request):
                     
                     # Create or update the user in the database
                     user_data = {'email': email, 'first_name': first_name, 'last_name': last_name}
-                    users_collection.update_one({'email': email}, {'$set': user_data}, upsert=True)
+                    users_collection = db["users"]
+                    await users_collection.update_one({'email': email}, {'$set': user_data}, upsert=True)
                     
                     # Generate JWT token
                     expires_delta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
