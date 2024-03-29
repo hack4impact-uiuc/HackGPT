@@ -18,6 +18,7 @@ export interface Message {
 interface ConversationMessagesProps {
   messages: Message[];
   handleHideMessage: (index: number) => Promise<void>;
+  handleDeleteMessage: (index: number) => Promise<void>;
   userName?: string;
 }
 
@@ -30,13 +31,14 @@ type MathComponents = {
 const ConversationMessages: React.FC<ConversationMessagesProps> = ({
   messages,
   handleHideMessage,
+  handleDeleteMessage,
   userName = "User",
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages.length]);
 
   return (
     <VStack spacing={4} align="stretch" width="100%" mb={10}>
@@ -45,7 +47,10 @@ const ConversationMessages: React.FC<ConversationMessagesProps> = ({
           key={index}
           borderRadius="none"
           borderWidth="1px"
-          p={4}
+          pt={4}
+          pl={4}
+          pr={4}
+          pb={1}
           borderColor={message.hidden ? "gray.300" : "black"}
           alignSelf={message.role === "user" ? "flex-end" : "flex-start"}
           maxWidth="100%"
@@ -61,6 +66,11 @@ const ConversationMessages: React.FC<ConversationMessagesProps> = ({
             remarkPlugins={[remarkGfm, remarkMath]}
             components={
               {
+                p: ({ children }) => (
+                  <Text color={message.hidden ? "gray.500" : "inherit"}>
+                    {children}
+                  </Text>
+                ),
                 code({ node, className, children, ...props }) {
                   const match = /language-(\w+)/.exec(className || "");
                   return match ? (
@@ -98,10 +108,22 @@ const ConversationMessages: React.FC<ConversationMessagesProps> = ({
             size="xs"
             variant="ghost"
             onClick={() => handleHideMessage(index)}
-            ml="auto"
-            mt={2}
+            ml={-1}
+            mt={4}
+            px={1}
+            color="gray.600"
           >
-            hide
+            {message.hidden ? "show" : "hide"}
+          </Button>
+          <Button
+            size="xs"
+            variant="ghost"
+            onClick={() => handleDeleteMessage(index)}
+            mt={4}
+            px={1}
+            color="gray.600"
+          >
+            delete
           </Button>
         </Box>
       ))}

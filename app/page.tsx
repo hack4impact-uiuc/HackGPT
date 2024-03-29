@@ -24,6 +24,8 @@ import {
   handleModelChange,
   fetchConversations,
   fetchConversationById,
+  handleHideMessage,
+  handleDeleteMessage,
 } from "./utils";
 import Link from "next/link";
 
@@ -48,27 +50,27 @@ export default function Home() {
     setTextValue(event.target.value);
   };
 
-  const handleHideMessage = async (index: number) => {
-    try {
-      const updatedMessages = messages.map((msg, i) =>
-        i === index ? { ...msg, hidden: !msg.hidden } : msg
+  const handleHideMessageWrapper = async (index: number) => {
+    if (conversationId) {
+      await handleHideMessage(
+        index,
+        messages,
+        conversationId,
+        setMessages,
+        cookies
       );
-      await fetch(
-        `${process.env.BACKEND_URL}/conversations/${conversationId}/messages`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${cookies.token}`,
-          },
-          body: JSON.stringify({ messages: updatedMessages }),
-          mode: "cors",
-          credentials: "include",
-        }
+    }
+  };
+
+  const handleDeleteMessageWrapper = async (index: number) => {
+    if (conversationId) {
+      await handleDeleteMessage(
+        index,
+        messages,
+        conversationId,
+        setMessages,
+        cookies
       );
-      setMessages(updatedMessages);
-    } catch (error) {
-      console.error("Error toggling message visibility:", error);
     }
   };
 
@@ -165,7 +167,8 @@ export default function Home() {
           <Box width="100%" pt={2} pb={2}>
             <ConversationMessages
               messages={messages}
-              handleHideMessage={handleHideMessage}
+              handleHideMessage={handleHideMessageWrapper}
+              handleDeleteMessage={handleDeleteMessageWrapper}
             />
           </Box>
         </VStack>

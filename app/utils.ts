@@ -206,3 +206,62 @@ export const handleModelChange = async (
     });
   }
 };
+
+
+export const handleHideMessage = async (
+  index: number,
+  messages: Message[],
+  conversationId: string,
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
+  cookies: { [key: string]: string }
+) => {
+  try {
+    const updatedMessages = messages.map((msg, i) =>
+      i === index ? { ...msg, hidden: !msg.hidden } : msg
+    );
+    await fetch(
+      `${process.env.BACKEND_URL}/conversations/${conversationId}/messages`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${cookies.token}`,
+        },
+        body: JSON.stringify(updatedMessages),
+        mode: "cors",
+        credentials: "include",
+      }
+    );
+    setMessages(updatedMessages);
+  } catch (error) {
+    console.error("Error toggling message visibility:", error);
+  }
+};
+
+export const handleDeleteMessage = async (
+  index: number,
+  messages: Message[],
+  conversationId: string,
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
+  cookies: { [key: string]: string }
+) => {
+  try {
+    const updatedMessages = messages.filter((_, i) => i !== index);
+    await fetch(
+      `${process.env.BACKEND_URL}/conversations/${conversationId}/messages`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${cookies.token}`,
+        },
+        body: JSON.stringify(updatedMessages),
+        mode: "cors",
+        credentials: "include",
+      }
+    );
+    setMessages(updatedMessages);
+  } catch (error) {
+    console.error("Error deleting message:", error);
+  }
+};
