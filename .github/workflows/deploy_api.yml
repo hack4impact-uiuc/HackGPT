@@ -35,8 +35,8 @@ jobs:
             git pull origin main
           fi
           echo "ENV_FILE_CONTENT:"
-          echo "$ENV_FILE_CONTENT"
-          echo "$ENV_FILE_CONTENT" > .env
+          echo "${{ secrets.ENV_FILE_CONTENT }}" | base64 --decode
+          echo "${{ secrets.ENV_FILE_CONTENT }}" | base64 --decode > .env
           docker build -t hackgpt .
           docker stop hackgpt-container || true
           docker rm hackgpt-container || true
