@@ -111,7 +111,6 @@ export const handleSendMessage = async (
       role: "user",
       content: textValue,
     };
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
     setTextValue("");
 
     if (!conversationId) {
@@ -134,6 +133,7 @@ export const handleSendMessage = async (
       if (response.ok) {
         const data = await response.json();
         setConversationId(data.conversation_id);
+        
 
         // Send the new message to the newly created conversation
         const messageResponse = await fetch(
@@ -151,11 +151,14 @@ export const handleSendMessage = async (
         );
 
         if (messageResponse.ok) {
+          setMessages((prevMessages) => prevMessages.length === 0 ? [...prevMessages, newMessage] : [...prevMessages]);
           await handleStreamingResponse(messageResponse, setMessages);
         }
       }
     } else {
       // Add message to existing conversation
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+
       const response = await fetch(
         `${process.env.BACKEND_URL}/conversations/${conversationId}/message`,
         {
