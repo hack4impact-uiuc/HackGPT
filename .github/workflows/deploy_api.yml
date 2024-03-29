@@ -21,8 +21,19 @@ jobs:
         ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
       run: |
         sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no $USERNAME@$HOST '
+          mkdir -p hackgpt
           cd hackgpt
-          git pull origin main -- Dockerfile api/ requirements.txt
+          if [ ! -d .git ]; then
+            git init
+            git remote add origin https://github.com/${{ github.repository }}.git
+            git config core.sparseCheckout true
+            echo "Dockerfile" >> .git/info/sparse-checkout
+            echo "api/" >> .git/info/sparse-checkout
+            echo "requirements.txt" >> .git/info/sparse-checkout
+            git pull --depth=1 origin main
+          else
+            git pull origin main
+          fi
           echo "$ENV_FILE_CONTENT" > .env
           docker build -t hackgpt .
           docker stop $(docker ps -q --filter ancestor=hackgpt)
