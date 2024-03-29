@@ -35,13 +35,35 @@ const ConversationMessages: React.FC<ConversationMessagesProps> = ({
   userName = "User",
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  // const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.length]);
 
+  // useEffect(() => {
+  //   const messagesContainer = messagesContainerRef.current;
+  //   if (messagesContainer) {
+  //     const scrollHeight = messagesContainer.scrollHeight;
+  //     const scrollTop = messagesContainer.scrollTop;
+  //     const clientHeight = messagesContainer.clientHeight;
+  //     const scrollPosition = scrollTop + clientHeight;
+  //     const scrollThreshold = scrollHeight * 0.9; // Bottom 10% of the page
+
+  //     if (scrollPosition >= scrollThreshold) {
+  //       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  //     }
+  //   }
+  // }, [messages]);
+
   return (
-    <VStack spacing={4} align="stretch" width="100%" mb={10}>
+    <VStack
+      spacing={4}
+      align="stretch"
+      width="100%"
+      mb={10}
+      // ref={messagesContainerRef}
+    >
       {messages.map((message, index) => (
         <Box
           key={index}
