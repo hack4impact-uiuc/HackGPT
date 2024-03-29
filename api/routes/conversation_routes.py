@@ -36,8 +36,7 @@ async def add_message_route(conversation_id: str, message_create: MessageCreate,
     
     conversation = await get_conversation_by_id(conversation_id, current_user.email)
     if conversation:
-        response_stream = generate_response_stream(conversation)
-        return StreamingResponse(response_stream, media_type="text/event-stream")
+        return StreamingResponse(generate_response_stream(conversation), media_type="text/event-stream")
     else:
         raise HTTPException(status_code=404, detail="Conversation not found")
 
