@@ -36,6 +36,6 @@ jobs:
           fi
           echo "$ENV_FILE_CONTENT" > .env
           docker build -t hackgpt .
-          docker stop $(docker ps -q --filter ancestor=hackgpt)
+          docker stop $(docker ps -q --filter ancestor=hackgpt) || true
           docker run -d -p 8000:8000 hackgpt
         '
