@@ -35,35 +35,40 @@ const ConversationMessages: React.FC<ConversationMessagesProps> = ({
   userName = "User",
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  // const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.length]);
 
-  // useEffect(() => {
-  //   const messagesContainer = messagesContainerRef.current;
-  //   if (messagesContainer) {
-  //     const scrollHeight = messagesContainer.scrollHeight;
-  //     const scrollTop = messagesContainer.scrollTop;
-  //     const clientHeight = messagesContainer.clientHeight;
-  //     const scrollPosition = scrollTop + clientHeight;
-  //     const scrollThreshold = scrollHeight * 0.9; // Bottom 10% of the page
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        }
+      },
+      {
+        root: null,
+        rootMargin: "0px",
+        threshold: 0.01, // Adjust the threshold as needed
+      }
+    );
 
-  //     if (scrollPosition >= scrollThreshold) {
-  //       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  //     }
-  //   }
-  // }, [messages]);
+    const currentMessagesEndRef = messagesEndRef.current;
+
+    if (currentMessagesEndRef) {
+      observer.observe(currentMessagesEndRef);
+    }
+
+    return () => {
+      if (currentMessagesEndRef) {
+        observer.unobserve(currentMessagesEndRef);
+      }
+    };
+  }, [messages]);
 
   return (
-    <VStack
-      spacing={4}
-      align="stretch"
-      width="100%"
-      mb={10}
-      // ref={messagesContainerRef}
-    >
+    <VStack spacing={4} align="stretch" width="100%" mb={10}>
       {messages.map((message, index) => (
         <Box
           key={index}
@@ -149,7 +154,7 @@ const ConversationMessages: React.FC<ConversationMessagesProps> = ({
           </Button>
         </Box>
       ))}
-      <div ref={messagesEndRef} />
+      <Box ref={messagesEndRef} height="5px" />
     </VStack>
   );
 };

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, } from "react";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { useCookies } from "react-cookie";
@@ -156,7 +156,7 @@ export default function Home() {
           />
         </Link>
       </HStack>
-      <Center minHeight="calc(100vh - 80px)" mt={16} mb={24}>
+      <Center minHeight="calc(100vh - 80px)" mt={16} mb={24} >
         <VStack
           width="60%"
           minWidth="500px"
