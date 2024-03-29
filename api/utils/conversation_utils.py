@@ -1,4 +1,6 @@
 from datetime import datetime, timezone
+from typing import List
+
 from api.utils.db_utils import get_db
 from api.models.conversation import Message, Conversation, LanguageModel
 from bson import ObjectId
@@ -75,3 +77,16 @@ async def update_conversation_model(conversation_id: str, model_provider: str, m
             )
             return result.modified_count > 0
     return False
+
+async def update_conversation_messages(conversation_id: str, updated_messages: List[Message], user_email: str):
+    db = await get_db()
+    conversations_collection = db["conversations"]
+    conversation = await get_conversation_by_id(conversation_id, user_email)
+    if conversation:
+        await conversations_collection.update_one(
+            {"_id": ObjectId(conversation_id)},
+            {"$set": {"messages": [message.dict() for message in updated_messages]}},
+        )
+        return True
+    else:
+        return False

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Box, Text, VStack } from "@chakra-ui/react";
+import { Box, Text, VStack, Button } from "@chakra-ui/react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
@@ -12,10 +12,12 @@ import { Components } from "react-markdown";
 export interface Message {
   role: "user" | "assistant";
   content: string;
+  hidden?: boolean;
 }
 
 interface ConversationMessagesProps {
   messages: Message[];
+  handleHideMessage: (index: number) => Promise<void>;
   userName?: string;
 }
 
@@ -27,6 +29,7 @@ type MathComponents = {
 
 const ConversationMessages: React.FC<ConversationMessagesProps> = ({
   messages,
+  handleHideMessage,
   userName = "User",
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -43,11 +46,15 @@ const ConversationMessages: React.FC<ConversationMessagesProps> = ({
           borderRadius="none"
           borderWidth="1px"
           p={4}
-          borderColor="black"
+          borderColor={message.hidden ? "gray.300" : "black"}
           alignSelf={message.role === "user" ? "flex-end" : "flex-start"}
           maxWidth="100%"
         >
-          <Text fontWeight="bold" mb={1}>
+          <Text
+            fontWeight="bold"
+            mb={1}
+            color={message.hidden ? "gray.500" : "inherit"}
+          >
             [{index}] {message.role === "user" ? userName : "Assistant"}
           </Text>
           <ReactMarkdown
@@ -87,6 +94,15 @@ const ConversationMessages: React.FC<ConversationMessagesProps> = ({
           >
             {message.content}
           </ReactMarkdown>
+          <Button
+            size="xs"
+            variant="ghost"
+            onClick={() => handleHideMessage(index)}
+            ml="auto"
+            mt={2}
+          >
+            hide
+          </Button>
         </Box>
       ))}
       <div ref={messagesEndRef} />

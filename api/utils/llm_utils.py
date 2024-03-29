@@ -5,6 +5,8 @@ from api.utils.llm_providers.openai import openai_generate_response
 from api.utils.llm_providers.anthropic import anthropic_generate_response, generate_conversation_name
 
 async def generate_response_stream(conversation):
+    visible_messages = [message for message in conversation.messages if not message.hidden]
+    conversation.messages = visible_messages    
     collected_chunks = []
     if conversation.model.provider == "openai":
         async for chunk in openai_generate_response(conversation):

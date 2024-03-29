@@ -1,9 +1,9 @@
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from api.models.conversation import Message
-from api.utils.conversation_utils import create_conversation, add_message, get_conversation_by_id, rename_conversation, get_conversations_by_user, update_conversation_model
-from api.utils.llm_providers.openai import openai_generate_response
+from api.utils.conversation_utils import update_conversation_messages, create_conversation, add_message, get_conversation_by_id, get_conversations_by_user, update_conversation_model
 from api.utils.llm_utils import generate_response_stream
 from api.utils.auth_utils import get_current_user
 from api.models.user import User
@@ -37,6 +37,18 @@ async def add_message_route(conversation_id: str, message_create: MessageCreate,
     conversation = await get_conversation_by_id(conversation_id, current_user.email)
     if conversation:
         return StreamingResponse(generate_response_stream(conversation), media_type="text/event-stream")
+    else:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+
+@router.put("/conversations/{conversation_id}/messages")
+async def update_messages_route(
+    conversation_id: str,
+    updated_messages: List[Message],
+    current_user: User = Depends(get_current_user),
+):
+    success = await update_conversation_messages(conversation_id, updated_messages, current_user.email)
+    if success:
+        return {"message": "Messages updated successfully"}
     else:
         raise HTTPException(status_code=404, detail="Conversation not found")
 

@@ -48,6 +48,30 @@ export default function Home() {
     setTextValue(event.target.value);
   };
 
+  const handleHideMessage = async (index: number) => {
+    try {
+      const updatedMessages = messages.map((msg, i) =>
+        i === index ? { ...msg, hidden: !msg.hidden } : msg
+      );
+      await fetch(
+        `${process.env.BACKEND_URL}/conversations/${conversationId}/messages`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookies.token}`,
+          },
+          body: JSON.stringify({ messages: updatedMessages }),
+          mode: "cors",
+          credentials: "include",
+        }
+      );
+      setMessages(updatedMessages);
+    } catch (error) {
+      console.error("Error toggling message visibility:", error);
+    }
+  };
+
   useEffect(() => {
     const token = searchParams.get("token");
 
@@ -139,7 +163,10 @@ export default function Home() {
           justify="space-between"
         >
           <Box width="100%" pt={2} pb={2}>
-            <ConversationMessages messages={messages} />
+            <ConversationMessages
+              messages={messages}
+              handleHideMessage={handleHideMessage}
+            />
           </Box>
         </VStack>
       </Center>
