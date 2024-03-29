@@ -1,0 +1,30 @@
+name: Deploy to DigitalOcean
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Deploy to DigitalOcean
+      env:
+        HOST: ${{ secrets.HOST }}
+        USERNAME: ${{ secrets.USERNAME }}
+        PASSWORD: ${{ secrets.PASSWORD }}
+        ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
+      run: |
+        sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no $USERNAME@$HOST '
+          cd hackgpt
+          git pull origin main -- Dockerfile api/ requirements.txt
+          echo "$ENV_FILE_CONTENT" > .env
+          docker build -t hackgpt .
+          docker stop $(docker ps -q --filter ancestor=hackgpt)
+          docker run -d -p 8000:8000 hackgpt
+        '
