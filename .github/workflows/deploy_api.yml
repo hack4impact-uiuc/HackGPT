@@ -34,6 +34,7 @@ jobs:
           else
             git pull origin main
           fi
+          echo "ENV_FILE_CONTENT:"
           echo "$ENV_FILE_CONTENT"
           echo "$ENV_FILE_CONTENT" > .env
           docker build -t hackgpt .
