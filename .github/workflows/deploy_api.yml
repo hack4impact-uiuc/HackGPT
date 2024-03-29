@@ -34,9 +34,6 @@ jobs:
           else
             git pull origin main
           fi
-          echo "ENV_FILE_CONTENT:"
-          echo "${{ secrets.ENV_FILE_CONTENT }}" 
-          echo "${{ secrets.ENV_FILE_CONTENT }}" > .env
           docker build -t hackgpt .
           docker stop hackgpt-container || true
           docker rm hackgpt-container || true
