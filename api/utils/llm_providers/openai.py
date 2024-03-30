@@ -20,4 +20,5 @@ async def openai_generate_response(conversation):
         content = chunk.choices[0].delta.content 
         if content is None: 
             content = ""
+        print(content)
         yield content
