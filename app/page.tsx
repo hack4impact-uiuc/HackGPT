@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { useCookies } from "react-cookie";
@@ -28,6 +28,14 @@ import {
   handleDeleteMessage,
 } from "./utils";
 import Link from "next/link";
+import { jwtDecode, JwtPayload } from "jwt-decode";
+
+interface CustomJwtPayload extends JwtPayload {
+  first_name?: string;
+  last_name?:string;
+  sub?: string;
+}
+
 
 export default function Home() {
   const router = useRouter();
@@ -109,6 +117,28 @@ export default function Home() {
     }
   }, [cookies.token, conversationId]);
 
+  let decodedToken: CustomJwtPayload | null = null;
+  if (cookies.token) {
+    try {
+      decodedToken = jwtDecode<CustomJwtPayload>(cookies.token);
+    } catch (error) {
+      console.error("Error decoding JWT token:", error);
+    }
+  }
+
+  let userFirstName: string | undefined = undefined;
+  let userEmail: string | undefined = undefined;
+  if (decodedToken) {
+    userFirstName = decodedToken.first_name || undefined;
+    userEmail = decodedToken.sub || undefined;
+  }
+
+  const [clientUserName, setClientUserName] = useState(userFirstName);
+
+  useEffect(() => {
+    setClientUserName(userFirstName);
+  }, [userFirstName]);
+
   return (
     <Box>
       <Sidebar
@@ -156,7 +186,7 @@ export default function Home() {
           />
         </Link>
       </HStack>
-      <Center minHeight="calc(100vh - 80px)" mt={16} mb={24} >
+      <Center minHeight="calc(100vh - 80px)" mt={16} mb={24}>
         <VStack
           width="60%"
           minWidth="500px"
@@ -169,6 +199,7 @@ export default function Home() {
               messages={messages}
               handleHideMessage={handleHideMessageWrapper}
               handleDeleteMessage={handleDeleteMessageWrapper}
+              userName={clientUserName}
             />
           </Box>
         </VStack>
