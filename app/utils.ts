@@ -153,8 +153,18 @@ export const handleSendMessage = async (
         );
 
         if (messageResponse.ok) {
-          setMessages((prevMessages) => prevMessages.length === 0 ? [...prevMessages, newMessage] : [...prevMessages]);
+          setMessages((prevMessages) =>
+            prevMessages.length === 0
+              ? [...prevMessages, newMessage]
+              : [...prevMessages]
+          );
           await handleStreamingResponse(messageResponse, setMessages);
+        } else if (response.status === 429) {
+          // Handle 429 error
+          setMessages((prevMessages) => prevMessages.slice(0, -1)); // Remove the last message
+          setTextValue(newMessage.content); // Put the message back in the input
+          // Display an error message or alert to the user
+          console.error("API usage limit exceeded");
         }
       }
     } else {
@@ -177,6 +187,12 @@ export const handleSendMessage = async (
 
       if (response.ok) {
         await handleStreamingResponse(response, setMessages);
+      } else if (response.status === 429) {
+        // Handle 429 error
+        setMessages((prevMessages) => prevMessages.slice(0, -1)); // Remove the last message
+        setTextValue(newMessage.content); // Put the message back in the input
+        // Display an error message or alert to the user
+        console.error("API usage limit exceeded");
       }
     }
   }

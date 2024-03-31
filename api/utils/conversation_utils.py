@@ -4,9 +4,11 @@ from datetime import datetime, timezone
 from typing import List
 
 from api.utils.db_utils import get_db
+from api.utils.llm_provider_info import LLM_PROVIDERS
 from api.models.conversation import Message, Conversation, LanguageModel
 from bson import ObjectId
 from fastapi import HTTPException
+import pytz
 
 async def create_conversation(user_email: str, name: str, model_provider: str, model_name: str):
     db = await get_db()
@@ -92,3 +94,41 @@ async def update_conversation_messages(conversation_id: str, updated_messages: L
         return True
     else:
         return False
+
+async def update_user_usage(user_email: str, model_name: str, input_tokens: int, output_tokens: int):
+    db = await get_db()
+    central_tz = pytz.timezone('US/Central')
+    today = datetime.now(central_tz).date().isoformat()
+    user_collection = db['users']
+
+    llm_provider = next((p for p in LLM_PROVIDERS if p.model_name == model_name), None)
+    if not llm_provider:
+        raise ValueError(f"Unknown model: {model_name}")
+
+    input_cost = input_tokens * llm_provider.input_token_cost
+    output_cost = output_tokens * llm_provider.output_token_cost
+    total_cost = input_cost + output_cost
+
+    update_query = {
+        '$inc': {
+            'daily_usage': total_cost,
+        }
+    }
+
+    if llm_provider.is_flagship:
+        update_query['$inc']['daily_flagship_usage'] = total_cost
+
+    # Update the user's daily usage
+    result = await user_collection.update_one(
+        {'email': user_email, 'last_usage_update': today},
+        update_query,
+    )
+
+    # If no document was updated, it means it's a new day or the user doesn't exist
+    if result.modified_count == 0:
+        # Set the daily usage to the current cost and update the last usage update date
+        await user_collection.update_one(
+            {'email': user_email},
+            {'$set': {'daily_usage': total_cost, 'daily_flagship_usage': total_cost if llm_provider.is_flagship else 0, 'last_usage_update': today}},
+            upsert=True,
+        )

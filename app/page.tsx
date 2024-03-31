@@ -13,6 +13,7 @@ import {
   Box,
   Image,
   Select,
+  Text,
 } from "@chakra-ui/react";
 import { ArrowUpIcon, AddIcon } from "@chakra-ui/icons";
 import AutoResizeTextarea from "./components/AutoResizeTextArea";
@@ -35,10 +36,9 @@ import { jwtDecode, JwtPayload } from "jwt-decode";
 
 interface CustomJwtPayload extends JwtPayload {
   first_name?: string;
-  last_name?:string;
+  last_name?: string;
   sub?: string;
 }
-
 
 export default function Home() {
   const router = useRouter();
@@ -56,6 +56,37 @@ export default function Home() {
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
+  const [userUsage, setUserUsage] = useState<{
+    daily_flagship_usage: number;
+    daily_usage: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const fetchUserUsage = async () => {
+      try {
+        const response = await fetch(`${process.env.BACKEND_URL}/usage`, {
+          headers: {
+            Authorization: `Bearer ${cookies.token}`,
+          },
+          mode: "cors",
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserUsage(data);
+        } else {
+          console.error("Failed to fetch user usage");
+        }
+      } catch (error) {
+        console.error("Error fetching user usage:", error);
+      }
+    };
+
+    if (cookies.token) {
+      fetchUserUsage();
+    }
+  }, [cookies.token]);
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setTextValue(event.target.value);
@@ -85,18 +116,18 @@ export default function Home() {
     }
   };
 
-    const handleEditMessageWrapper = async (index: number) => {
-      if (conversationId) {
-        await handleEditMessage(
-          index,
-          messages,
-          conversationId,
-          setMessages,
-          setTextValue,
-          cookies
-        );
-      }
-    };
+  const handleEditMessageWrapper = async (index: number) => {
+    if (conversationId) {
+      await handleEditMessage(
+        index,
+        messages,
+        conversationId,
+        setMessages,
+        setTextValue,
+        cookies
+      );
+    }
+  };
 
   useEffect(() => {
     const token = searchParams.get("token");
@@ -232,27 +263,76 @@ export default function Home() {
         py={4}
       >
         <VStack width="60%" minWidth="500px" maxWidth="700px">
-          <Select
-            size="sm"
-            variant="unstyled"
-            width="140px"
-            alignSelf="start"
-            value={selectedModel}
-            onChange={(event) =>
-              handleModelChange(
-                event,
-                conversationId,
-                setSelectedModel,
-                cookies
-              )
-            }
-          >
-            {LLMProviders.map((model) => (
-              <option value={model.model_name} key={model.model_name}>
-                {model.display_name}
-              </option>
-            ))}
-          </Select>
+          <HStack width="100%" justifyContent="space-between">
+            <Select
+              size="sm"
+              variant="unstyled"
+              width="140px"
+              alignSelf="start"
+              value={selectedModel}
+              onChange={(event) =>
+                handleModelChange(
+                  event,
+                  conversationId,
+                  setSelectedModel,
+                  cookies
+                )
+              }
+            >
+              {LLMProviders.map((model) => (
+                <option value={model.model_name} key={model.model_name}>
+                  {model.display_name}
+                </option>
+              ))}
+            </Select>
+            {userUsage && (
+              <>
+                {LLMProviders.find(
+                  (model) => model.model_name === selectedModel
+                )?.isFlagship &&
+                  userUsage.daily_flagship_usage >
+                    parseFloat(process.env.DAILY_FLAGSHIP_USAGE_LIMIT || "0") /
+                      2 && (
+                    <Text
+                      alignSelf="end"
+                      justifySelf="end"
+                      color={
+                        userUsage.daily_flagship_usage >
+                        parseFloat(
+                          process.env.DAILY_FLAGSHIP_USAGE_LIMIT || "0"
+                        )
+                          ? "red.700"
+                          : "black"
+                      }
+                    >
+                      ${userUsage.daily_flagship_usage.toFixed(2)} /{" "}
+                      {process.env.DAILY_FLAGSHIP_USAGE_LIMIT}
+                    </Text>
+                  )}
+                {!LLMProviders.find(
+                  (model) => model.model_name === selectedModel
+                )?.isFlagship &&
+                  userUsage.daily_usage >
+                    (parseFloat(process.env.DAILY_USAGE_LIMIT || "0") * 3) /
+                      4 && (
+                    <Text
+                      alignSelf="end"
+                      justifySelf="end"
+                      size="sm"
+                      color={
+                        userUsage.daily_usage >
+                        parseFloat(process.env.DAILY_USAGE_LIMIT || "0")
+                          ? "red.700"
+                          : "black"
+                      }
+                    >
+                      ${userUsage.daily_usage.toFixed(2)} /{" "}
+                      {process.env.DAILY_USAGE_LIMIT}
+                    </Text>
+                  )}
+              </>
+            )}
+          </HStack>
           <HStack width="100%">
             <AutoResizeTextarea
               value={textValue}

@@ -10,3 +10,5 @@ python-multipart
 itsdangerous
 fastapi-cors
 motor
+tiktoken
+pytz

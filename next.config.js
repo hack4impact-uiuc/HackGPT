@@ -27,6 +27,8 @@ const nextConfig = {
   },
   env: {
     BACKEND_URL: process.env.BACKEND_URL,
+    DAILY_FLAGSHIP_USAGE_LIMIT: process.env.DAILY_FLAGSHIP_USAGE_LIMIT,
+    DAILY_USAGE_LIMIT: process.env.DAILY_USAGE_LIMIT
   },
   experimental: {
     outputFileTracingExcludes: {
