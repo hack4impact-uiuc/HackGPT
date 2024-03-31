@@ -1,3 +1,5 @@
+//app/utils.ts
+
 import { Message } from "./components/ConversationMessages";
 import { LLMProviders } from "./llm_providers";
 
@@ -266,5 +268,36 @@ export const handleDeleteMessage = async (
     setMessages(updatedMessages);
   } catch (error) {
     console.error("Error deleting message:", error);
+  }
+};
+
+
+export const handleEditMessage = async (
+  index: number,
+  messages: Message[],
+  conversationId: string,
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
+  setTextValue: React.Dispatch<React.SetStateAction<string>>,
+  cookies: { [key: string]: string }
+) => {
+  try {
+    const updatedMessages = messages.slice(0, index);
+    await fetch(
+      `${process.env.BACKEND_URL}/conversations/${conversationId}/messages`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${cookies.token}`,
+        },
+        body: JSON.stringify(updatedMessages),
+        mode: "cors",
+        credentials: "include",
+      }
+    );
+    setMessages(updatedMessages);
+    setTextValue(messages[index].content);
+  } catch (error) {
+    console.error("Error editing message:", error);
   }
 };

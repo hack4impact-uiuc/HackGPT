@@ -1,4 +1,6 @@
 "use client";
+
+// app/page.tsx
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
@@ -26,6 +28,7 @@ import {
   fetchConversationById,
   handleHideMessage,
   handleDeleteMessage,
+  handleEditMessage,
 } from "./utils";
 import Link from "next/link";
 import { jwtDecode, JwtPayload } from "jwt-decode";
@@ -81,6 +84,19 @@ export default function Home() {
       );
     }
   };
+
+    const handleEditMessageWrapper = async (index: number) => {
+      if (conversationId) {
+        await handleEditMessage(
+          index,
+          messages,
+          conversationId,
+          setMessages,
+          setTextValue,
+          cookies
+        );
+      }
+    };
 
   useEffect(() => {
     const token = searchParams.get("token");
@@ -199,6 +215,7 @@ export default function Home() {
               messages={messages}
               handleHideMessage={handleHideMessageWrapper}
               handleDeleteMessage={handleDeleteMessageWrapper}
+              handleEditMessage={handleEditMessageWrapper}
               userName={clientUserName}
             />
           </Box>

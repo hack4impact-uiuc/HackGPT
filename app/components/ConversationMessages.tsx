@@ -1,3 +1,5 @@
+//app/components/ConversationMessages.tsx
+
 import React, { useEffect, useRef } from "react";
 import { Box, Text, VStack, Button, Center, Heading } from "@chakra-ui/react";
 import ReactMarkdown from "react-markdown";
@@ -19,6 +21,7 @@ interface ConversationMessagesProps {
   messages: Message[];
   handleHideMessage: (index: number) => Promise<void>;
   handleDeleteMessage: (index: number) => Promise<void>;
+  handleEditMessage: (index: number) => Promise<void>;
   userName?: string;
 }
 
@@ -32,6 +35,7 @@ const ConversationMessages: React.FC<ConversationMessagesProps> = ({
   messages,
   handleHideMessage,
   handleDeleteMessage,
+  handleEditMessage,
   userName = "User",
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -157,6 +161,18 @@ const ConversationMessages: React.FC<ConversationMessagesProps> = ({
             >
               delete
             </Button>
+            {message.role === "user" && (
+              <Button
+                size="xs"
+                variant="ghost"
+                onClick={() => handleEditMessage(index)}
+                mt={4}
+                px={1}
+                color="gray.600"
+              >
+                edit
+              </Button>
+            )}
           </Box>
         ))
       )}

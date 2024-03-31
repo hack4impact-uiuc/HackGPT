@@ -1,4 +1,4 @@
-// components/AutoResizeTextarea.tsx
+// app/components/AutoResizeTextarea.tsx
 import React, { useEffect, useRef } from "react";
 import { Textarea, TextareaProps } from "@chakra-ui/react";
 

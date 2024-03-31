@@ -1,3 +1,5 @@
+//app/components/Sidebar.tsx
+
 import { useState } from "react";
 import {
   Box,
