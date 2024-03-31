@@ -8,7 +8,15 @@ from api.utils.llm_providers.anthropic import anthropic_generate_response, gener
 
 async def generate_response_stream(conversation):
     visible_messages = [message for message in conversation.messages if not message.hidden]
-    conversation.messages = visible_messages    
+    # Merge adjacent messages with the same role
+    merged_messages = []
+    for message in visible_messages:
+        if merged_messages and merged_messages[-1].role == message.role:
+            merged_messages[-1].content += "\n" + message.content
+        else:
+            merged_messages.append(message)
+    
+    conversation.messages = merged_messages
     collected_chunks = []
     if conversation.model.provider == "openai":
         async for chunk in openai_generate_response(conversation):
