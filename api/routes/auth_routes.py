@@ -58,8 +58,6 @@ async def auth(request: Request, db = Depends(get_db)):
         
         # Extract user email from the user information
         email = user_info.get('email')
-
-        print(f"EMAIL: {email}")
         
         # Make a request to the members API to retrieve user information by email
         async with httpx.AsyncClient() as client:
@@ -69,8 +67,6 @@ async def auth(request: Request, db = Depends(get_db)):
             )
             if response.status_code == 200:
                 member_data = response.json()
-                print(f"MEMBER DATA")
-                print(member_data)
                 if member_data['success']:
                     user = member_data['result']
                     first_name = user['firstName']
