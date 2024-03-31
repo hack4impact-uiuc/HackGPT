@@ -19,6 +19,7 @@ async def openai_generate_response(conversation):
     input_tokens = sum(len(encoding.encode(message["content"])) for message in messages)
 
     stream = await client.chat.completions.create(
+        max_tokens=1500,
         model=conversation.model.name,
         messages=messages,
         stream=True,

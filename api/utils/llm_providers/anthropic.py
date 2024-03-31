@@ -17,7 +17,7 @@ async def anthropic_generate_response(conversation):
     stream = await client.messages.create(
         model=conversation.model.name,
         messages=messages,
-        max_tokens=1024,
+        max_tokens=1500,
         stream=True,
     )
 

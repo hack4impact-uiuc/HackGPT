@@ -8,9 +8,9 @@ class LLMProvider:
         self.is_flagship = is_flagship
 
 LLM_PROVIDERS = [
-    LLMProvider("gpt-4-0125-preview", "openai", "gpt-4 turbo", 0.03 / 1000, 0.06 / 1000, True),
-    LLMProvider("gpt-3.5-turbo-0125", "openai", "gpt-3.5 turbo", 0.002 / 1000, 0.002 / 1000, False),
-    LLMProvider("claude-3-opus-20240229", "anthropic", "claude 3 opus", 0.02 / 1000, 0.04 / 1000, True),
-    LLMProvider("claude-3-sonnet-20240229", "anthropic", "claude 3 sonnet", 0.001 / 1000, 0.001 / 1000, False),
-    LLMProvider("claude-3-haiku-20240307", "anthropic", "claude 3 haiku", 0.001 / 1000, 0.001 / 1000, False),
+    LLMProvider("gpt-4-0125-preview", "openai", "gpt-4 turbo", 10 / 1000000, 30 / 1000000, True),
+    LLMProvider("gpt-3.5-turbo-0125", "openai", "gpt-3.5 turbo", 0.50 / 1000000, 1.50 / 1000000, False),
+    LLMProvider("claude-3-opus-20240229", "anthropic", "claude 3 opus", 15 / 1000000, 75 / 1000000, True),
+    LLMProvider("claude-3-sonnet-20240229", "anthropic", "claude 3 sonnet", 3 / 1000000, 15 / 1000000, False),
+    LLMProvider("claude-3-haiku-20240307", "anthropic", "claude 3 haiku", 0.25 / 1000000, 1.25 / 1000000, False),
 ]
