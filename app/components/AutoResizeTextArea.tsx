@@ -5,6 +5,7 @@ import { Textarea, TextareaProps } from "@chakra-ui/react";
 interface AutoResizeTextareaProps extends TextareaProps {
   maxHeight?: string;
   onSendMessage?: () => void;
+  isLoading: boolean;
 }
 
 const AutoResizeTextarea: React.FC<AutoResizeTextareaProps> = ({
@@ -13,12 +14,13 @@ const AutoResizeTextarea: React.FC<AutoResizeTextareaProps> = ({
   placeholder,
   maxHeight = "200px",
   onSendMessage,
+  isLoading,
   ...rest
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+    if ((event.metaKey || event.ctrlKey) && event.key === "Enter" && !isLoading) {
       event.preventDefault();
       if (onSendMessage) {
         onSendMessage();

@@ -261,6 +261,7 @@ export default function Home() {
               borderRadius="none"
               borderColor="black"
               minHeight="40px"
+              isLoading={loading}
               onSendMessage={() =>
                 handleSendMessage(
                   textValue,
