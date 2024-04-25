@@ -30,4 +30,10 @@ export const LLMProviders = [
     display_name: "claude 3 haiku",
     isFlagship: false,
   },
+  {
+    model_name: "llama-3-70b-instruct-iq2xs",
+    model_provider: "alllama",
+    display_name: "llama-3 70B",
+    isFlagship: false,
+  },
 ];
