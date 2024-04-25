@@ -7,8 +7,9 @@ from starlette.config import Config
 from api.utils.conversation_utils import update_user_usage
 
 config = Config(".env")
-client = AsyncOpenAI(api_key=config("ALLLAMA_API_KEY"))
-
+client = AsyncOpenAI(
+    base_url=config("ALLLAMA_API_BASE_URL"), api_key=config("ALLLAMA_API_KEY")
+)
 
 async def alllama_generate_response(conversation):
     messages = [
