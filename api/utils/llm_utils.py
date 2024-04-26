@@ -5,6 +5,7 @@ from api.utils.conversation_utils import add_message, get_conversation_by_id, up
 from api.models.conversation import Message
 from api.utils.llm_providers.openai import openai_generate_response
 from api.utils.llm_providers.anthropic import anthropic_generate_response, generate_conversation_name
+from api.utils.llm_providers.alllama import alllama_generate_response
 
 async def generate_response_stream(conversation):
     visible_messages = [message for message in conversation.messages if not message.hidden]
@@ -25,6 +26,11 @@ async def generate_response_stream(conversation):
                 yield chunk
     elif conversation.model.provider == "anthropic":
         async for chunk in anthropic_generate_response(conversation):
+            if chunk:
+                collected_chunks.append(chunk)
+                yield chunk
+    elif conversation.model.provider == "alllama":
+        async for chunk in alllama_generate_response(conversation):
             if chunk:
                 collected_chunks.append(chunk)
                 yield chunk
